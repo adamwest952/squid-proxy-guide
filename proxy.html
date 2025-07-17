@@ -381,9 +381,17 @@ systemctl enable squid
                     ขั้นตอนที่ 5: ทดสอบการใช้งาน
                 </div>
                 <div class="step-content">
+                    <div class="info">
+                        <strong>หมายเหตุ:</strong> แทนที่ <span class="command">YOUR_SERVER_IP</span> ด้วย IP address ของ server ที่ติดตั้ง Squid ไว้
+                        <br><br>
+                        <strong>หา IP ของ server:</strong><br>
+                        • <span class="command">ip addr show</span> หรือ <span class="command">ifconfig</span><br>
+                        • <span class="command">curl ifconfig.me</span> (สำหรับ public IP)
+                    </div>
+                    
                     <h4>🔍 ทดสอบด้วย curl:</h4>
                     <div class="code-block">
-curl -x http://youruser:yourpassword@147.50.228.230:3128 http://httpbin.org/ip
+curl -x http://youruser:yourpassword@YOUR_SERVER_IP:3128 http://httpbin.org/ip
                     </div>
                     
                     <h4>🌐 ตั้งค่าใน Browser:</h4>
@@ -394,7 +402,7 @@ curl -x http://youruser:yourpassword@147.50.228.230:3128 http://httpbin.org/ip
                         </div>
                         <div class="card">
                             <h5>2️⃣ ใส่ข้อมูล</h5>
-                            <p>Server: <span class="command">147.50.228.230</span><br>
+                            <p>Server: <span class="command">YOUR_SERVER_IP</span><br>
                             Port: <span class="command">3128</span></p>
                         </div>
                         <div class="card">
@@ -442,6 +450,10 @@ tail -f /var/log/squid/cache.log
                     <tr>
                         <td><strong>Proxy Type</strong></td>
                         <td><span class="command">HTTP Proxy</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Server IP</strong></td>
+                        <td><span class="command">YOUR_SERVER_IP</span> (แทนที่ด้วย IP จริง)</td>
                     </tr>
                     <tr>
                         <td><strong>Port</strong></td>
@@ -535,13 +547,16 @@ http_access deny blacklist
                 </ul>
                 
                 <h4 style="margin-top: 15px;">🔧 ตัวอย่างการใช้งาน:</h4>
+                <div class="info">
+                    <strong>หมายเหตุ:</strong> แทนที่ <span class="command">YOUR_SERVER_IP</span> ด้วย IP address จริงของ server
+                </div>
                 <div class="code-block">
 # ดาวน์โหลดไฟล์ผ่าน proxy<br>
 wget --proxy-user=youruser --proxy-password=yourpass \<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--proxy=on http://example.com/file.zip<br><br>
 
 # อัพเดท Ubuntu ผ่าน proxy<br>
-export http_proxy=http://youruser:yourpass@147.50.228.230:3128<br>
+export http_proxy=http://youruser:yourpass@YOUR_SERVER_IP:3128<br>
 apt update
                 </div>
             </div>
