@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือติดตั้ง Squid Proxy Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .step {
+            margin-bottom: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateY(-2px);
+        }
+        
+        .step-header {
+            padding: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .step1 .step-header { background: linear-gradient(135deg, #FF6B6B, #FF8E53); }
+        .step2 .step-header { background: linear-gradient(135deg, #4ECDC4, #44A08D); }
+        .step3 .step-header { background: linear-gradient(135deg, #A8E6CF, #88D8A3); }
+        .step4 .step-header { background: linear-gradient(135deg, #FFD93D, #FF8E53); }
+        .step5 .step-header { background: linear-gradient(135deg, #6C5CE7, #A29BFE); }
+        .step6 .step-header { background: linear-gradient(135deg, #FD79A8, #FDCB6E); }
+        
+        .step-content {
+            padding: 25px;
+            background: #f8f9fa;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            position: relative;
+            overflow-x: auto;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .code-block::before {
+            content: '💻';
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #a8e6cf 0%, #dcedc1 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .warning {
+            background: linear-gradient(120deg, #ffe5b4 0%, #ffcccc 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .warning::before {
+            content: '⚠️ ';
+            font-weight: bold;
+        }
+        
+        .info {
+            background: linear-gradient(120deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .info::before {
+            content: '💡 ';
+            font-weight: bold;
+        }
+        
+        .success {
+            background: linear-gradient(120deg, #e8f5e8 0%, #c8e6c9 100%);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .success::before {
+            content: '✅ ';
+            font-weight: bold;
+        }
+        
+        .summary-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .summary-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .summary-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+        
+        .summary-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .summary-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .command {
+            background: #1a202c;
+            color: #68d391;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            display: inline-block;
+            margin: 2px;
+        }
+        
+        .section-divider {
+            height: 3px;
+            background: linear-gradient(90deg, #4CAF50, #45a049, #4CAF50);
+            margin: 30px 0;
+            border-radius: 2px;
+        }
+        
+        .icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        
+        .tips-section h3 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid #4CAF50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 คู่มือติดตั้ง Squid Proxy Server</h1>
+            <p>เอกสารฉบับสมบูรณ์สำหรับการติดตั้งและจัดการ Proxy Server</p>
+        </div>
+        
+        <div class="content">
+            <!-- ภาพรวม -->
+            <div class="highlight">
+                <h3>🎯 ภาพรวม</h3>
+                <p><strong>Squid</strong> เป็น proxy server ที่นิยมใช้งานแพร่หลาย ช่วยให้สามารถควบคุมการเข้าถึงอินเทอร์เน็ตได้ และรองรับการยืนยันตัวตน (Authentication)</p>
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <!-- ขั้นตอนที่ 1 -->
+            <div class="step step1">
+                <div class="step-header">
+                    <span class="icon">🔧</span>
+                    ขั้นตอนที่ 1: ติดตั้ง Squid
+                </div>
+                <div class="step-content">
+                    <div class="code-block">
+apt update<br>
+apt install squid apache2-utils -y
+                    </div>
+                    
+                    <div class="info">
+                        <strong>คำอธิบาย:</strong><br>
+                        • <span class="command">squid</span> = proxy server หลัก<br>
+                        • <span class="command">apache2-utils</span> = เครื่องมือสำหรับสร้างไฟล์ password
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ขั้นตอนที่ 2 -->
+            <div class="step step2">
+                <div class="step-header">
+                    <span class="icon">⚙️</span>
+                    ขั้นตอนที่ 2: ปรับแต่งค่าตั้ง
+                </div>
+                <div class="step-content">
+                    <h4>📝 แก้ไขไฟล์ config หลัก:</h4>
+                    <div class="code-block">
+nano /etc/squid/squid.conf
+                    </div>
+                    
+                    <h4>⚡ เพิ่มหรือแก้ไขการตั้งค่าเหล่านี้:</h4>
+                    <div class="code-block">
+# กำหนด port ที่ให้บริการ<br>
+http_port 3128<br><br>
+
+# เปิดใช้งาน Basic Authentication<br>
+auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd<br>
+auth_param basic realm Proxy<br><br>
+
+# กำหนดสิทธิ์การเข้าถึง<br>
+acl authenticated proxy_auth REQUIRED<br>
+http_access allow authenticated<br><br>
+
+# แก้ไขปัญหา DNS<br>
+dns_v4_first on
+                    </div>
+                    
+                    <div class="grid">
+                        <div class="card">
+                            <h4>🔌 Port 3128</h4>
+                            <p>พอร์ตมาตรฐานสำหรับ HTTP proxy</p>
+                        </div>
+                        <div class="card">
+                            <h4>🔐 Basic Auth</h4>
+                            <p>วิธีการยืนยันตัวตนแบบพื้นฐาน</p>
+                        </div>
+                        <div class="card">
+                            <h4>🛡️ ACL</h4>
+                            <p>Access Control List ควบคุมสิทธิ์การเข้าถึง</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ขั้นตอนที่ 3 -->
+            <div class="step step3">
+                <div class="step-header">
+                    <span class="icon">👤</span>
+                    ขั้นตอนที่ 3: สร้างบัญชีผู้ใช้
+                </div>
+                <div class="step-content">
+                    <h4>🆕 สร้างผู้ใช้คนแรก:</h4>
+                    <div class="code-block">
+htpasswd -c /etc/squid/passwd youruser
+                    </div>
+                    
+                    <div class="success">
+                        จะมีข้อความให้ใส่รหัสผ่าน
+                    </div>
+                    
+                    <h4>➕ เพิ่มผู้ใช้เพิ่มเติม:</h4>
+                    <div class="code-block">
+htpasswd /etc/squid/passwd anotheruser
+                    </div>
+                    
+                    <div class="warning">
+                        <strong>หมายเหตุ:</strong> ไม่ต้องใส่ <span class="command">-c</span> เมื่อเพิ่มผู้ใช้ใหม่
+                    </div>
+                    
+                    <h4>🎯 ตัวอย่าง:</h4>
+                    <div class="code-block">
+htpasswd -c /etc/squid/passwd admin<br>
+htpasswd /etc/squid/passwd user1<br>
+htpasswd /etc/squid/passwd user2
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ขั้นตอนที่ 4 -->
+            <div class="step step4">
+                <div class="step-header">
+                    <span class="icon">🔄</span>
+                    ขั้นตอนที่ 4: เริ่มใช้งาน
+                </div>
+                <div class="step-content">
+                    <h4>🚀 รีสตาร์ท Squid service:</h4>
+                    <div class="code-block">
+systemctl restart squid
+                    </div>
+                    
+                    <h4>📊 ตรวจสอบสถานะ:</h4>
+                    <div class="code-block">
+systemctl status squid
+                    </div>
+                    
+                    <h4>⚡ เปิดใช้งานอัตโนมัติเมื่อ boot:</h4>
+                    <div class="code-block">
+systemctl enable squid
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ขั้นตอนที่ 5 -->
+            <div class="step step5">
+                <div class="step-header">
+                    <span class="icon">✅</span>
+                    ขั้นตอนที่ 5: ทดสอบการใช้งาน
+                </div>
+                <div class="step-content">
+                    <h4>🔍 ทดสอบด้วย curl:</h4>
+                    <div class="code-block">
+curl -x http://youruser:yourpassword@147.50.228.230:3128 http://httpbin.org/ip
+                    </div>
+                    
+                    <h4>🌐 ตั้งค่าใน Browser:</h4>
+                    <div class="grid">
+                        <div class="card">
+                            <h5>1️⃣ เข้า Settings</h5>
+                            <p>Settings → Network → Proxy</p>
+                        </div>
+                        <div class="card">
+                            <h5>2️⃣ ใส่ข้อมูล</h5>
+                            <p>Server: <span class="command">147.50.228.230</span><br>
+                            Port: <span class="command">3128</span></p>
+                        </div>
+                        <div class="card">
+                            <h5>3️⃣ Authentication</h5>
+                            <p>เลือก Basic และใส่ Username/Password</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ขั้นตอนที่ 6 -->
+            <div class="step step6">
+                <div class="step-header">
+                    <span class="icon">📊</span>
+                    ขั้นตอนที่ 6: ตรวจสอบ Log
+                </div>
+                <div class="step-content">
+                    <h4>📈 ดู log แบบ real-time:</h4>
+                    <div class="code-block">
+tail -f /var/log/squid/access.log
+                    </div>
+                    
+                    <h4>📄 ดู log ทั้งหมด:</h4>
+                    <div class="code-block">
+cat /var/log/squid/access.log
+                    </div>
+                    
+                    <h4>🚨 ดู error log:</h4>
+                    <div class="code-block">
+tail -f /var/log/squid/cache.log
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-divider"></div>
+            
+            <!-- สรุปข้อมูลสำคัญ -->
+            <h3 style="text-align: center; color: #333; margin: 30px 0;">📋 สรุปข้อมูลสำคัญ</h3>
+            <div class="summary-table">
+                <table>
+                    <tr>
+                        <th>🏷️ รายการ</th>
+                        <th>📝 ค่า</th>
+                    </tr>
+                    <tr>
+                        <td><strong>Proxy Type</strong></td>
+                        <td><span class="command">HTTP Proxy</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Port</strong></td>
+                        <td><span class="command">3128</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Authentication</strong></td>
+                        <td><span class="command">Basic Auth</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Config File</strong></td>
+                        <td><span class="command">/etc/squid/squid.conf</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Password File</strong></td>
+                        <td><span class="command">/etc/squid/passwd</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Access Log</strong></td>
+                        <td><span class="command">/var/log/squid/access.log</span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Error Log</strong></td>
+                        <td><span class="command">/var/log/squid/cache.log</span></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <!-- การแก้ไขปัญหา -->
+            <div class="tips-section">
+                <h3><span class="icon">🚨</span>การแก้ไขปัญหาเบื้องต้น</h3>
+                
+                <h4>🔍 ตรวจสอบว่า Squid ทำงานปกติหรือไม่:</h4>
+                <div class="code-block">
+systemctl status squid<br>
+netstat -tulpn | grep 3128
+                </div>
+                
+                <h4>🔧 หาก config ผิด:</h4>
+                <div class="code-block">
+squid -k parse
+                </div>
+                
+                <h4>🔄 รีสตาร์ทเมื่อแก้ไข config:</h4>
+                <div class="code-block">
+systemctl reload squid<br>
+# หรือ<br>
+systemctl restart squid
+                </div>
+                
+                <h4>🛡️ ตรวจสอบ firewall:</h4>
+                <div class="code-block">
+ufw allow 3128<br>
+# หรือ<br>
+iptables -A INPUT -p tcp --dport 3128 -j ACCEPT
+                </div>
+            </div>
+            
+            <!-- เทคนิคเพิ่มเติม -->
+            <div class="tips-section">
+                <h3><span class="icon">💡</span>เทคนิคเพิ่มเติม</h3>
+                
+                <h4>📊 เพิ่มการจำกัด bandwidth:</h4>
+                <div class="code-block">
+# เพิ่มใน squid.conf<br>
+delay_pools 1<br>
+delay_class 1 2<br>
+delay_parameters 1 8000/8000 1000/1000
+                </div>
+                
+                <h4>🚫 บล็อกเว็บไซต์:</h4>
+                <div class="code-block">
+# สร้างไฟล์ blacklist<br>
+echo "facebook.com" >> /etc/squid/blacklist.txt<br>
+echo "youtube.com" >> /etc/squid/blacklist.txt<br><br>
+
+# เพิ่มใน squid.conf<br>
+acl blacklist dstdomain "/etc/squid/blacklist.txt"<br>
+http_access deny blacklist
+                </div>
+            </div>
+            
+            <!-- การใช้งาน -->
+            <div class="success">
+                <h3>🎯 การใช้งาน</h3>
+                <p>หลังจากติดตั้งเสร็จแล้ว สามารถใช้งาน proxy ได้ผ่าน:</p>
+                <ul style="margin-top: 10px;">
+                    <li><strong>Browser:</strong> ตั้งค่า proxy ใน network settings</li>
+                    <li><strong>Command line:</strong> ใช้กับ curl, wget, apt</li>
+                    <li><strong>Application:</strong> ใส่ proxy settings ในโปรแกรมที่รองรับ</li>
+                </ul>
+                
+                <h4 style="margin-top: 15px;">🔧 ตัวอย่างการใช้งาน:</h4>
+                <div class="code-block">
+# ดาวน์โหลดไฟล์ผ่าน proxy<br>
+wget --proxy-user=youruser --proxy-password=yourpass \<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;--proxy=on http://example.com/file.zip<br><br>
+
+# อัพเดท Ubuntu ผ่าน proxy<br>
+export http_proxy=http://youruser:yourpass@147.50.228.230:3128<br>
+apt update
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
